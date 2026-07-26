@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#355C6E" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Ace Says" />
+  <meta name="description" content="Ace Says personal pet communication journal prototype" />
+  <link rel="icon" href="icon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Ace Says v1.0</title>
+  <style>
+    :root{
+      --slate:#355C6E;
+      --ocean:#6F95A8;
+      --sand:#F3EFE7;
+      --mist:#FCFBF8;
+      --brass:#C7A25A;
+      --sage:#7F9D93;
+      --midnight:#233746;
+      --line:#D8D3CA;
+      --muted:#6E7B82;
+      --danger:#8A4D4D;
+      --shadow:0 14px 38px rgba(35,55,70,.12);
+      --soft-shadow:0 8px 24px rgba(53,92,110,.08);
+      --radius:26px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:
+      radial-gradient(circle at top right, rgba(111,149,168,.18), transparent 34%),
+      linear-gradient(180deg,#f8f5ef 0%,var(--sand) 100%);
+      color:var(--midnight);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+    body{min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:780px;margin:0 auto;min-height:100vh;padding-bottom:104px}
+    .screen{display:none;padding:24px 20px 34px}
+    .screen.active{display:block}
+    .glass{
+      background:rgba(252,251,248,.84);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      border:1px solid rgba(216,211,202,.9);
+      box-shadow:var(--shadow)
+    }
+    .hero{padding-top:54px;text-align:center}
+    .logo-wrap{
+      width:124px;height:124px;border-radius:38px;
+      background:linear-gradient(145deg,var(--slate),#294959);
+      margin:0 auto 24px;display:grid;place-items:center;color:white;
+      box-shadow:0 18px 40px rgba(53,92,110,.28);position:relative
+    }
+    .logo-wrap:after{
+      content:"";position:absolute;width:28px;height:22px;border-radius:12px 12px 12px 4px;
+      background:var(--brass);right:16px;top:14px
+    }
+    .logo-wrap svg{width:94px;height:94px;display:block}
+    h1{font-size:42px;line-height:1.05;margin:0 0 10px;color:var(--slate);letter-spacing:-1px}
+    h2{font-size:29px;margin:0 0 16px;color:var(--slate);letter-spacing:-.4px}
+    h3{font-size:19px;margin:0 0 8px;color:var(--slate)}
+    p{line-height:1.55}
+    .tagline{font-size:21px;margin:0 auto 12px;max-width:520px}
+    .subtle{color:var(--muted);font-size:14px}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:7px;border-radius:999px;
+      background:rgba(111,149,168,.13);color:var(--slate);padding:7px 12px;
+      font-size:13px;font-weight:700
+    }
+    .card{
+      background:rgba(252,251,248,.9);border:1px solid var(--line);border-radius:var(--radius);
+      padding:20px;box-shadow:var(--soft-shadow);margin:14px 0
+    }
+    .primary,.secondary,.ghost{
+      width:100%;border-radius:18px;padding:15px 18px;font-weight:750;margin-top:10px;
+      transition:transform .15s ease, box-shadow .15s ease
+    }
+    .primary:active,.secondary:active,.ghost:active{transform:scale(.985)}
+    .primary{
+      border:0;background:linear-gradient(145deg,var(--slate),#2d5162);color:white;
+      box-shadow:0 10px 24px rgba(53,92,110,.23)
+    }
+    .secondary{border:0;background:var(--brass);color:#28363c}
+    .ghost{background:rgba(252,251,248,.6);color:var(--slate);border:1px solid rgba(53,92,110,.45)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-weight:750;margin:14px 0 7px;color:var(--slate)}
+    input,select,textarea{
+      width:100%;border:1px solid var(--line);border-radius:15px;padding:13px;background:rgba(255,255,255,.9);
+      color:var(--midnight);font-size:16px;outline:none
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--ocean);box-shadow:0 0 0 4px rgba(111,149,168,.12)}
+    textarea{min-height:98px;resize:vertical}
+    .pet-avatar{
+      width:94px;height:94px;border-radius:50%;
+      background:linear-gradient(145deg,#dce7ec,#edf2f4);
+      display:grid;place-items:center;font-size:44px;margin-bottom:10px;
+      border:4px solid rgba(255,255,255,.95);box-shadow:var(--shadow)
+    }
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .action{
+      min-height:124px;text-align:left;background:rgba(252,251,248,.88);
+      border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--soft-shadow);
+      color:var(--midnight)
+    }
+    .action .icon{font-size:30px;display:block;margin-bottom:18px}
+    .big-action{
+      min-height:166px;color:white;border:0;
+      background:
+        linear-gradient(145deg,rgba(53,92,110,.98),rgba(43,77,93,.98)),
+        radial-gradient(circle at top right,rgba(199,162,90,.25),transparent 28%);
+      box-shadow:0 18px 34px rgba(53,92,110,.24)
+    }
+    .big-action strong{font-size:23px}
+    .context-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .context-btn{
+      border:1px solid var(--line);background:rgba(255,255,255,.78);
+      border-radius:15px;padding:13px;color:var(--midnight)
+    }
+    .context-btn.selected{
+      background:linear-gradient(145deg,var(--slate),#2f5262);color:white;border-color:var(--slate)
+    }
+    .wave{
+      height:72px;display:flex;align-items:center;justify-content:center;gap:7px;margin:10px 0 18px
+    }
+    .wave span{
+      width:8px;border-radius:10px;background:linear-gradient(var(--ocean),var(--slate));
+      animation:pulse 1.2s infinite ease-in-out
+    }
+    .wave span:nth-child(1){height:18px;animation-delay:0s}
+    .wave span:nth-child(2){height:38px;animation-delay:.12s}
+    .wave span:nth-child(3){height:56px;animation-delay:.24s}
+    .wave span:nth-child(4){height:38px;animation-delay:.36s}
+    .wave span:nth-child(5){height:18px;animation-delay:.48s}
+    @keyframes pulse{0%,100%{transform:scaleY(.65);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+    .progress{height:10px;background:#e7e3db;border-radius:99px;overflow:hidden}
+    .progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--ocean),var(--brass));transition:width .55s ease}
+    .analysis-step{opacity:.32;transition:.3s;display:flex;gap:12px;align-items:center;padding:12px 0}
+    .analysis-step.active{opacity:1;font-weight:750;color:var(--slate)}
+    .speech{
+      background:
+        linear-gradient(145deg,rgba(220,232,237,.96),rgba(241,246,248,.98));
+      color:var(--midnight);border:1px solid rgba(111,149,168,.35);
+      border-radius:28px 28px 28px 10px;padding:24px;font-size:22px;line-height:1.45;
+      box-shadow:var(--shadow)
+    }
+    .speech-label{font-size:13px;font-weight:800;color:var(--slate);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .confidence-wrap{display:flex;align-items:end;gap:12px}
+    .confidence{font-size:38px;font-weight:850;color:var(--slate)}
+    .confidence-bar{height:9px;background:#e8e4dc;border-radius:99px;overflow:hidden;margin-top:12px}
+    .confidence-bar>div{height:100%;background:linear-gradient(90deg,var(--sage),var(--ocean));width:0;transition:width .8s ease}
+    .feedback{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .feedback button{border:1px solid var(--line);background:rgba(255,255,255,.85);border-radius:14px;padding:12px 8px}
+    .timeline-item{border-left:4px solid var(--brass);padding:0 0 18px 16px;margin-left:6px}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .stat{background:rgba(252,251,248,.88);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--soft-shadow)}
+    .stat b{display:block;font-size:23px;color:var(--slate);margin-top:4px}
+    .notice{background:rgba(233,241,244,.72);border:1px solid rgba(111,149,168,.36);border-radius:17px;padding:14px;font-size:14px}
+    .nav{
+      position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(780px,100%);
+      display:grid;grid-template-columns:repeat(4,1fr);
+      background:rgba(252,251,248,.88);border-top:1px solid rgba(216,211,202,.9);
+      padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+      backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);z-index:10
+    }
+    .nav button{background:transparent;border:0;color:var(--muted);padding:8px 4px;font-size:12px}
+    .nav button span{display:block;font-size:22px;margin-bottom:2px}
+    .nav button.active{color:var(--slate);font-weight:800}
+    .hidden{display:none!important}
+    video{width:100%;border-radius:20px;background:#111;max-height:360px}
+    .empty{text-align:center;padding:30px 10px;color:var(--muted)}
+    .back{border:0;background:transparent;color:var(--slate);font-size:16px;padding:0}
+    .mini-story{padding:18px;border-left:4px solid var(--ocean);background:rgba(255,255,255,.54);border-radius:0 18px 18px 0}
+    @media(max-width:520px){
+      h1{font-size:35px}.screen{padding-left:16px;padding-right:16px}
+      .row,.stat-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <section id="welcome" class="screen active">
+    <div class="hero">
+      <div class="logo-wrap"><svg viewBox="0 0 120 120" aria-label="Overlapping white cat and dog paw logo" role="img"><g fill="#fff"><ellipse cx="28" cy="33" rx="8" ry="12" transform="rotate(-28 28 33)"/><ellipse cx="45" cy="22" rx="9" ry="13" transform="rotate(-10 45 22)"/><ellipse cx="64" cy="23" rx="10" ry="14" transform="rotate(10 64 23)"/><ellipse cx="83" cy="35" rx="10" ry="14" transform="rotate(28 83 35)"/><path d="M29 62c4-16 18-27 33-25 17 2 30 15 31 31 1 13-9 23-22 22-9-1-15-5-23-4-10 2-20-3-22-12-1-4 0-8 3-12z"/><ellipse cx="78" cy="39" rx="7" ry="11" transform="rotate(-22 78 39)"/><ellipse cx="93" cy="31" rx="8" ry="12" transform="rotate(-5 93 31)"/><ellipse cx="106" cy="40" rx="8" ry="12" transform="rotate(18 106 40)"/><path d="M68 68c4-13 14-21 26-21 14 0 25 11 27 24 2 10-6 19-16 19-8 0-13-4-20-3-8 1-16-3-18-10-1-3 0-6 1-9z" opacity=".97"/></g><path d="M40 71c0-12 10-22 23-22s23 10 23 22-10 22-23 22h-5l-11 9 3-12c-6-4-10-11-10-19z" fill="#233746" stroke="#fff" stroke-width="4"/><circle cx="56" cy="71" r="2.5" fill="#C7A25A"/><circle cx="63" cy="71" r="2.5" fill="#C7A25A"/><circle cx="70" cy="71" r="2.5" fill="#C7A25A"/></svg></div>
+      <div class="eyebrow">Personal Testing Edition</div>
+      <h1 style="margin-top:14px">Ace Says</h1>
+      <p class="tagline">Helping humans become better listeners.</p>
+      <p class="subtle">A calm, thoughtful prototype for understanding the moments you share with your pet.</p>
+      <div class="card glass" style="margin-top:30px;text-align:left">
+        <h3>Designed to feel personal</h3>
+        <p>A polished personal testing experience built around the finalized Ace Says identity, custom overlapping paw logo, calm earth-tone blues, and a relationship-centered journey.</p>
+      </div>
+      <button class="primary" data-go="setup">Begin Understanding</button>
+      <button class="ghost" id="continueBtn">Continue With Saved Profile</button>
+    </div>
+  </section>
+
+  <section id="setup" class="screen">
+    <div class="topbar"><button class="back" data-go="welcome">← Back</button><span class="eyebrow">Pet profile</span></div>
+    <h2>Meet your pet</h2>
+    <div class="pet-avatar">🐈</div>
+    <label for="petName">Name</label>
+    <input id="petName" value="Ace" />
+    <div class="row">
+      <div><label for="species">Species</label><select id="species"><option>Cat</option><option>Dog</option></select></div>
+      <div><label for="breed">Breed</label><input id="breed" value="Maine Coon" /></div>
+    </div>
+    <label for="favorite">Favorite things</label>
+    <input id="favorite" placeholder="Patio door, treats, feather toy…" />
+    <label for="notes">Personality notes</label>
+    <textarea id="notes" placeholder="Calm, curious, vocal in the evening…"></textarea>
+    <button class="primary" id="saveProfile">Create Ace’s Profile</button>
+  </section>
+
+  <section id="home" class="screen">
+    <div class="topbar">
+      <div><span class="eyebrow">Version 1.0</span><h2 id="greeting" style="margin-top:10px">Good evening, Tom.</h2></div>
+      <div class="pet-avatar" style="width:60px;height:60px;font-size:28px;margin:0">🐈</div>
+    </div>
+    <p id="homePrompt">Let’s discover what Ace may be trying to tell you today.</p>
+    <div class="action-grid">
+      <button class="action big-action" style="grid-column:1/-1" data-go="analyze">
+        <span class="icon">🎥</span><strong>Analyze a Moment</strong><br><small>Upload or record a short video</small>
+      </button>
+      <button class="action" data-go="journal"><span class="icon">📖</span><strong>My Journal</strong></button>
+      <button class="action" data-go="learned"><span class="icon">🧠</span><strong>Journey Together</strong></button>
+    </div>
+    <div class="card">
+      <span class="eyebrow">Today’s insight</span>
+      <p>Cats often communicate through where they focus their attention, how long they wait, and whether their body remains relaxed or tense.</p>
+    </div>
+    <div class="mini-story">
+      <strong style="color:var(--slate)">A growing story</strong>
+      <p style="margin-bottom:0">Each saved moment helps build a more personal picture of Ace’s routines, requests, and communication style.</p>
+    </div>
+  </section>
+
+  <section id="analyze" class="screen">
+    <div class="topbar"><button class="back" data-go="home">← Home</button><span class="eyebrow">Step 1 of 2</span></div>
+    <h2>Show us the moment</h2>
+    <div class="card glass">
+      <input id="videoInput" type="file" accept="video/*" capture="environment" />
+      <p class="subtle">On iPad, choose a video from Photos or record a new one. Recommended length: 5–60 seconds.</p>
+      <video id="preview" class="hidden" controls playsinline></video>
+    </div>
+    <button class="primary" id="toContext">Continue</button>
+  </section>
+
+  <section id="context" class="screen">
+    <div class="topbar"><button class="back" data-go="analyze">← Back</button><span class="eyebrow">Step 2 of 2</span></div>
+    <h2>Add context</h2>
+    <p>What happened just before this?</p>
+    <div class="context-grid">
+      <button class="context-btn">Feeding time</button>
+      <button class="context-btn">Playtime</button>
+      <button class="context-btn">Closed door</button>
+      <button class="context-btn">Someone arrived</button>
+      <button class="context-btn">Another animal</button>
+      <button class="context-btn">Unknown</button>
+    </div>
+    <label for="contextNote">Optional note</label>
+    <textarea id="contextNote" placeholder="Ace was sitting beside the patio door and trilled once."></textarea>
+    <div class="notice">This prototype demonstrates the experience using transparent demo reasoning rather than a production animal-behavior AI model.</div>
+    <button class="primary" id="startAnalysis">Analyze This Moment</button>
+  </section>
+
+  <section id="thinking" class="screen">
+    <div class="topbar"><span></span><span class="eyebrow">Thoughtful analysis</span></div>
+    <h2>Ace Says is observing…</h2>
+    <div class="wave"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="card glass">
+      <div class="progress"><div id="progressBar"></div></div>
+      <div id="steps">
+        <div class="analysis-step">👀 <span>Observing body language</span></div>
+        <div class="analysis-step">🎙️ <span>Listening for vocal cues</span></div>
+        <div class="analysis-step">🧭 <span>Considering the situation</span></div>
+        <div class="analysis-step">🧠 <span>Comparing with Ace’s profile</span></div>
+        <div class="analysis-step">✅ <span>Building confidence</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen">
+    <div class="topbar"><button class="back" data-go="home">← Home</button><span class="eyebrow">Interpretation</span></div>
+    <h2>Here’s what Ace may be saying</h2>
+    <div class="speech">
+      <div class="speech-label">Ace Says</div>
+      <div id="speechText">“Human… I believe this door should now become an open door.”</div>
+    </div>
+    <div class="card glass">
+      <h3>Behavioral insight</h3>
+      <p id="insightText">Ace appears focused on a specific location while remaining relatively calm. In the context of a closed door, this pattern often supports a request for access or curiosity about what is beyond it.</p>
+      <div class="confidence-wrap"><div class="confidence" id="confidenceText">84%</div><span class="subtle">demo confidence</span></div>
+      <div class="confidence-bar"><div id="confidenceBar"></div></div>
+      <p class="subtle">Based on context completeness and profile history.</p>
+    </div>
+    <div class="card">
+      <h3>Learn together</h3>
+      <p id="learnText">Cats often learn which household objects humans control. Waiting near a door, looking between the door and a person, or vocalizing briefly can become a learned request.</p>
+    </div>
+    <div class="card">
+      <h3>Was this helpful?</h3>
+      <div class="feedback">
+        <button data-feedback="Exactly">👍 Exactly</button>
+        <button data-feedback="Partly">🙂 Partly</button>
+        <button data-feedback="Not really">👎 Not really</button>
+      </div>
+      <p id="feedbackMessage" class="subtle"></p>
+    </div>
+    <button class="secondary" id="saveResult">Save to Journal</button>
+    <button class="ghost" data-go="analyze">Analyze Another</button>
+  </section>
+
+  <section id="journal" class="screen">
+    <div class="topbar"><h2>My Journal</h2><span class="eyebrow" id="journalCount">0 moments</span></div>
+    <div id="journalList" class="empty">No saved moments yet.</div>
+  </section>
+
+  <section id="learned" class="screen">
+    <div class="topbar"><h2>Journey Together</h2><span class="eyebrow">Your relationship</span></div>
+    <div class="card glass">
+      <h3 id="learnedTitle">About Ace</h3>
+      <p id="learnedStory">Each saved analysis will help build a more personal story about Ace’s routines, requests, and communication style.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><span class="subtle">Recorded moments</span><b id="analysisCount">0</b></div>
+      <div class="stat"><span class="subtle">Most common context</span><b id="commonContext">—</b></div>
+      <div class="stat"><span class="subtle">Profile confidence</span><b id="profileConfidence">20%</b></div>
+      <div class="stat"><span class="subtle">Helpful ratings</span><b id="helpfulCount">0</b></div>
+    </div>
+    <div class="notice">A production version would use real multimodal models, expert-reviewed behavior taxonomies, stronger safety checks, and individualized long-term learning.</div>
+  </section>
+
+  <section id="profile" class="screen">
+    <div class="topbar"><h2>Profile</h2><span class="eyebrow">Local prototype</span></div>
+    <div class="card glass">
+      <h3 id="profileName">Ace</h3>
+      <p id="profileDetails">Maine Coon · Cat</p>
+      <button class="ghost" data-go="setup">Edit Pet Profile</button>
+    </div>
+    <div class="card">
+      <h3>Privacy</h3>
+      <p>This prototype stores profile and journal data only in this browser on this device. Videos are previewed locally and are not uploaded anywhere.</p>
+      <button class="ghost" id="clearData" style="color:var(--danger);border-color:var(--danger)">Clear Local Data</button>
+    </div>
+  </section>
+</div>
+
+<nav id="nav" class="nav hidden">
+  <button data-go="home"><span>🏠</span>Home</button>
+  <button data-go="analyze"><span>🎥</span>Analyze</button>
+  <button data-go="journal"><span>📖</span>Journal</button>
+  <button data-go="profile"><span>👤</span>Profile</button>
+</nav>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const state = {
+  profile: JSON.parse(localStorage.getItem("ace_profile") || "null"),
+  journal: JSON.parse(localStorage.getItem("ace_journal") || "[]"),
+  selectedContext: "",
+  feedback: "",
+  currentResult: null
+};
+function show(id){
+  $$(".screen").forEach(s=>s.classList.remove("active"));
+  $("#"+id).classList.add("active");
+  const nav=$("#nav"), main=["home","analyze","journal","profile","learned"];
+  nav.classList.toggle("hidden",!main.includes(id));
+  $$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.go===id));
+  if(id==="home")renderHome();
+  if(id==="journal")renderJournal();
+  if(id==="learned")renderLearned();
+  if(id==="profile")renderProfile();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$$("[data-go]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
+$("#continueBtn").classList.toggle("hidden",!state.profile);
+$("#saveProfile").addEventListener("click",()=>{
+  state.profile={name:$("#petName").value.trim()||"Ace",species:$("#species").value,breed:$("#breed").value.trim()||"Unknown breed",favorite:$("#favorite").value.trim(),notes:$("#notes").value.trim()};
+  localStorage.setItem("ace_profile",JSON.stringify(state.profile));
+  $("#continueBtn").classList.remove("hidden");
+  show("home");
+});
+$("#continueBtn").addEventListener("click",()=>show(state.profile?"home":"setup"));
+function renderHome(){
+  const name=state.profile?.name||"Ace";
+  $("#homePrompt").textContent=`Let’s discover what ${name} may be trying to tell you today.`;
+}
+function renderProfile(){
+  const p=state.profile||{name:"Ace",breed:"Maine Coon",species:"Cat"};
+  $("#profileName").textContent=p.name;
+  $("#profileDetails").textContent=`${p.breed} · ${p.species}`;
+}
+$("#videoInput").addEventListener("change",e=>{
+  const file=e.target.files[0]; if(!file)return;
+  $("#preview").src=URL.createObjectURL(file); $("#preview").classList.remove("hidden");
+});
+$("#toContext").addEventListener("click",()=>show("context"));
+$$(".context-btn").forEach(btn=>btn.addEventListener("click",()=>{
+  $$(".context-btn").forEach(x=>x.classList.remove("selected"));
+  btn.classList.add("selected"); state.selectedContext=btn.textContent;
+}));
+function buildDemoResult(){
+  const p=state.profile||{name:"Ace",species:"Cat"};
+  const ctx=state.selectedContext||"Unknown";
+  const note=$("#contextNote").value.toLowerCase();
+  let speech,insight,learn,confidence=72;
+  if(ctx==="Closed door"||note.includes("door")){
+    speech="“Human… I believe this door should now become an open door.”";
+    insight=`${p.name} appears focused on a specific location while remaining relatively calm. In the context of a closed door, this pattern often supports a request for access or curiosity about what is beyond it.`;
+    learn=`${p.species}s often learn which household objects humans control. Waiting near a door, looking between the door and a person, or vocalizing briefly can become a learned request.`;
+    confidence=84;
+  }else if(ctx==="Feeding time"||note.includes("food")||note.includes("treat")){
+    speech="“A gentle reminder: the food schedule is a matter of great importance.”";
+    insight=`${p.name}’s behavior occurred around feeding-related context. Orientation toward you, the food area, or a familiar routine can support a request for food or anticipation of a meal.`;
+    learn="Animals quickly associate time, sounds, locations, and human routines with feeding. Repeated patterns are more informative than any single gesture.";
+    confidence=81;
+  }else if(ctx==="Playtime"||note.includes("toy")||note.includes("play")){
+    speech="“I have selected this moment for entertainment. Please participate.”";
+    insight=`${p.name} may be inviting interaction. Repeated approach, attention shifts, playful movement, or focus on a familiar toy can support a play request.`;
+    learn="Play invitations often combine movement, eye contact, object focus, and repetition. Individual play styles become clearer with repeated observations.";
+    confidence=79;
+  }else if(ctx==="Someone arrived"){
+    speech="“Something changed. I noticed it, and you should notice it too.”";
+    insight=`${p.name} may be responding to a new sound, scent, or person entering the environment. Alertness can reflect curiosity, excitement, uncertainty, or protective behavior.`;
+    learn="Context is essential: alert behavior can look similar across curiosity, excitement, and concern. Body tension and recovery time help distinguish them.";
+    confidence=76;
+  }else{
+    speech="“I am communicating something important. Let us keep observing together.”";
+    insight=`${p.name} appears engaged with the environment, but the available context does not strongly support one specific interpretation. A longer clip or additional background would improve confidence.`;
+    learn="Responsible interpretation includes uncertainty. The strongest conclusions come from multiple signals, repeated patterns, and what happens immediately afterward.";
+    confidence=66;
+  }
+  if(state.journal.length>=3)confidence+=3;
+  return {speech,insight,learn,confidence:Math.min(confidence,92),context:ctx,note:$("#contextNote").value,when:new Date().toISOString()};
+}
+$("#startAnalysis").addEventListener("click",()=>{
+  show("thinking");
+  const steps=$$(".analysis-step"),bar=$("#progressBar");
+  steps.forEach(x=>x.classList.remove("active"));bar.style.width="0%";
+  let i=0;
+  const timer=setInterval(()=>{
+    if(i>0)steps[i-1].classList.remove("active");
+    if(i<steps.length){steps[i].classList.add("active");bar.style.width=`${(i+1)*20}%`;i++;}
+    else{
+      clearInterval(timer);state.currentResult=buildDemoResult();
+      setTimeout(()=>{
+        $("#speechText").textContent=state.currentResult.speech;
+        $("#insightText").textContent=state.currentResult.insight;
+        $("#learnText").textContent=state.currentResult.learn;
+        $("#confidenceText").textContent=state.currentResult.confidence+"%";
+        $("#confidenceBar").style.width=state.currentResult.confidence+"%";
+        show("result");
+      },350);
+    }
+  },650);
+});
+$$("[data-feedback]").forEach(b=>b.addEventListener("click",()=>{
+  state.feedback=b.dataset.feedback;
+  $("#feedbackMessage").textContent=`Feedback recorded: ${state.feedback}. This would help personalize future interpretations.`;
+}));
+$("#saveResult").addEventListener("click",()=>{
+  if(!state.currentResult)return;
+  const entry={...state.currentResult,feedback:state.feedback||"Not rated"};
+  state.journal.unshift(entry);localStorage.setItem("ace_journal",JSON.stringify(state.journal));
+  $("#saveResult").textContent="Saved ✓";setTimeout(()=>show("journal"),450);
+});
+function renderJournal(){
+  $("#journalCount").textContent=`${state.journal.length} moment${state.journal.length===1?"":"s"}`;
+  if(!state.journal.length){$("#journalList").className="empty";$("#journalList").textContent="No saved moments yet.";return;}
+  $("#journalList").className="";
+  $("#journalList").innerHTML=state.journal.map(x=>{
+    const d=new Date(x.when);
+    return `<div class="timeline-item"><span class="subtle">${d.toLocaleDateString()} · ${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}</span><h3>${x.context}</h3><p>${x.speech}</p><span class="eyebrow">${x.confidence}% confidence · ${x.feedback}</span></div>`;
+  }).join("");
+}
+function renderLearned(){
+  const name=state.profile?.name||"Ace";
+  $("#learnedTitle").textContent=`About ${name}`;
+  $("#analysisCount").textContent=state.journal.length;
+  const counts={};state.journal.forEach(x=>counts[x.context]=(counts[x.context]||0)+1);
+  const common=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
+  $("#commonContext").textContent=common;
+  const helpful=state.journal.filter(x=>x.feedback==="Exactly"||x.feedback==="Partly").length;
+  $("#helpfulCount").textContent=helpful;
+  $("#profileConfidence").textContent=`${Math.min(20+state.journal.length*7,90)}%`;
+  $("#learnedStory").textContent=state.journal.length
+    ?`${name}’s profile is beginning to reveal repeated situations and communication patterns. The most common recorded context so far is “${common}.” Continue saving moments and confirming results to create a more individualized understanding over time.`
+    :`Each saved analysis will help build a more personal story about ${name}’s routines, requests, and communication style.`;
+}
+$("#clearData").addEventListener("click",()=>{
+  if(confirm("Clear Ace Says profile and journal data from this browser?")){
+    localStorage.removeItem("ace_profile");localStorage.removeItem("ace_journal");location.reload();
+  }
+});
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
