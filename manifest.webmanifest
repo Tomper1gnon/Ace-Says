@@ -1,0 +1,17 @@
+{
+  "name": "Ace Says",
+  "short_name": "Ace Says",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F3EFE7",
+  "theme_color": "#173B4D",
+  "description": "Ace Says v1.1 complete prototype",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
